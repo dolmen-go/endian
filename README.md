@@ -6,9 +6,9 @@
 
 ## You should not use this package!
 
-Read this discussion before using this package:
+Read this article before using this package:
 
-http://grokbase.com/t/gg/golang-nuts/129jhmdb3d/go-nuts-how-to-tell-endian-ness-of-machine
+https://commandcenter.blogspot.fr/2012/04/byte-order-fallacy.html
 
 You should probably first try to fix the broken code that generates
 data dependent on the architecture on which it is compiled. Fix it so it

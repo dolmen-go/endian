@@ -7,6 +7,8 @@ import (
 	"unsafe"
 )
 
+// The byte order of this GOARCH was unknown at code generation time.
+// It will be determined at runtime.
 var Native binary.ByteOrder
 
 func init() {
