@@ -1,3 +1,4 @@
+//go:generate go get github.com/dolmen-go/codegen
 //go:generate go run -tags generate generate.go
 
 // Package endian provides the native byte order of GOARCH
