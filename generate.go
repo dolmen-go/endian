@@ -125,9 +125,8 @@ var Native = binary.{{if .Big}}Big{{else}}Little{{end}}Endian
 		)
 	}
 
-	// FIXME Remove ",!others"
 	const templateOthers = `
-{{- /**/}}// +build {{range .}}!{{.}},{{end}}!others
+{{- /**/}}// +build {{range .}}!{{.}},{{end}}!generate
 
 package endian
 
