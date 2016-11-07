@@ -110,6 +110,7 @@ package endian
 
 import "encoding/binary"
 
+// Native is the byte order of GOARCH.
 var Native = binary.{{if .Big}}Big{{else}}Little{{end}}Endian
 `
 
@@ -141,8 +142,9 @@ import (
 	"unsafe"
 )
 
-// The byte order of this GOARCH was unknown at code generation time.
-// It will be determined at runtime.
+// Native is the byte order of GOARCH.
+// It will be determined at runtime because it was unknown at code
+// generation time.
 var Native binary.ByteOrder
 
 func init() {

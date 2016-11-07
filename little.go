@@ -7,4 +7,5 @@ package endian
 
 import "encoding/binary"
 
+// Native is the byte order of GOARCH.
 var Native = binary.LittleEndian
