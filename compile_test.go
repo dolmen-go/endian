@@ -12,4 +12,5 @@ var compileTest binary.ByteOrder = endian.Native
 
 // TestCompile is a dummy test: the real test is above
 func TestCompile(t *testing.T) {
+	_ = compileTest
 }
