@@ -3,7 +3,8 @@
 
 // Package endian provides the native byte order of GOARCH
 //
-// You should not use this package before reading and understanding
+// You should not use this package before reading and understanding this
+// article by Rob Pike:
 // https://commandcenter.blogspot.fr/2012/04/byte-order-fallacy.html
 //
 // This package could be useful ONLY to workaround bugs in other software.

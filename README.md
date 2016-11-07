@@ -6,7 +6,7 @@
 
 ## You should not use this package!
 
-Read this article before using this package:
+Read this article by Rob Pike before using this package:
 
 https://commandcenter.blogspot.fr/2012/04/byte-order-fallacy.html
 
