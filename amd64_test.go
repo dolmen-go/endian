@@ -11,6 +11,6 @@ import (
 
 func TestAmd64(t *testing.T) {
 	if endian.Native != binary.LittleEndian {
-		t.Fatal("Unexpected native encoding: %s", endian.Native)
+		t.Fatal("Unexpected native encoding:", endian.Native)
 	}
 }
