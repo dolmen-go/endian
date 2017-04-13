@@ -13,6 +13,7 @@ import (
 	"go/token"
 	"log"
 	"os"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -68,7 +69,7 @@ func parseArch(filename string) (bool, error) {
 }
 
 func main() {
-	var srcDir = os.ExpandEnv("${GOROOT}/src/runtime/internal/sys")
+	var srcDir = runtime.GOROOT() + "/src/runtime/internal/sys"
 	dir, err := os.Open(srcDir)
 	if err != nil {
 		log.Fatal(err)
