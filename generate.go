@@ -52,15 +52,15 @@ func parseArch(filename string) (bool, error) {
 		valueExpr, ok := spec.Values[0].(*ast.BasicLit)
 		// fmt.Printf("%#v\n", valueExpr)
 		if !ok {
-			return false, fmt.Errorf("%s: BasicLit value expected for const BigEndian")
+			return false, fmt.Errorf("%s: BasicLit value expected for const BigEndian", filename)
 		}
 		if valueExpr.Kind != token.INT {
-			return false, fmt.Errorf("%s: INT value expected for const BigEndian")
+			return false, fmt.Errorf("%s: INT value expected for const BigEndian", filename)
 		}
 
 		intValue, _ := strconv.ParseInt(valueExpr.Value, 0, 64)
 		if intValue < 0 || intValue > 1 {
-			return false, fmt.Errorf("%s: value 0/1 expected for const BigEndian")
+			return false, fmt.Errorf("%s: value 0/1 expected for const BigEndian", filename)
 		}
 		return intValue == 1, nil
 	}
