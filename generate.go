@@ -69,6 +69,9 @@ func parseArch(filename string) (bool, error) {
 }
 
 func main() {
+	log.SetPrefix("")
+	log.SetFlags(0)
+
 	var srcDir = runtime.GOROOT() + "/src/runtime/internal/sys"
 	dir, err := os.Open(srcDir)
 	if err != nil {
