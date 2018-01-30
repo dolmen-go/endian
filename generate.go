@@ -49,20 +49,30 @@ func parseArch(filename string) (bool, error) {
 		if len(spec.Values) != 1 {
 			return false, fmt.Errorf("%s: single value expected for const BigEndian", filename)
 		}
-		valueExpr, ok := spec.Values[0].(*ast.BasicLit)
-		// fmt.Printf("%#v\n", valueExpr)
-		if !ok {
-			return false, fmt.Errorf("%s: BasicLit value expected for const BigEndian", filename)
-		}
-		if valueExpr.Kind != token.INT {
-			return false, fmt.Errorf("%s: INT value expected for const BigEndian", filename)
-		}
+		switch valueExpr := spec.Values[0].(type) {
+		// !go1.10
+		case *ast.BasicLit:
+			if valueExpr.Kind != token.INT {
+				return false, fmt.Errorf("%s: INT value expected for const BigEndian; got %s", filename, valueExpr.Kind)
+			}
 
-		intValue, _ := strconv.ParseInt(valueExpr.Value, 0, 64)
-		if intValue < 0 || intValue > 1 {
-			return false, fmt.Errorf("%s: value 0/1 expected for const BigEndian", filename)
+			intValue, _ := strconv.ParseInt(valueExpr.Value, 0, 64)
+			if intValue < 0 || intValue > 1 {
+				return false, fmt.Errorf("%s: value 0/1 expected for const BigEndian", filename)
+			}
+			return intValue == 1, nil
+		// go1.10 https://go-review.googlesource.com/c/go/+/73270
+		case *ast.Ident:
+			switch valueExpr.Name {
+			case "true":
+				return true, nil
+			case "false":
+				return false, nil
+			}
+			return false, fmt.Errorf("%s: BOOL value expected for const BigEndian; got %q", filename, valueExpr.Name)
+		default:
+			return false, fmt.Errorf("%s: unexpected value type for const BigEndian; got %T", filename, spec.Values[0])
 		}
-		return intValue == 1, nil
 	}
 
 	return true, fmt.Errorf("%s: const BigEndian not found", filename)
