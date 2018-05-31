@@ -1,5 +1,21 @@
 ---
 language: go
 go:
-- 1.8
+- 1.8.x
+- 1.9.x
+- 1.10.x
 - tip
+sudo: false
+
+# Forks will use that path for checkout
+go_import_path: github.com/dolmen-go/endian
+
+before_install:
+- go list # Verify that go_import_path is ok
+- go get -t -v ./...
+
+script:
+- go test -coverprofile=coverage.txt -covermode=atomic
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)
