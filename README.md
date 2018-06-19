@@ -1,7 +1,7 @@
 # endian.Native - A single constant that you should not use
 
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/dolmen-go/endian)
-[![Travis-CI](https://img.shields.io/travis/dolmen-go/endian.svg)](https://travis-ci.org/dolmen-go/endian)
+[![Travis-CI](https://api.travis-ci.org/dolmen-go/endian.svg?branch=master)](https://travis-ci.org/dolmen-go/endian)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dolmen-go/endian)](https://goreportcard.com/report/github.com/dolmen-go/endian)
 
 ## You should not use this package!
