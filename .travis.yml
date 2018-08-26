@@ -20,7 +20,7 @@ before_install:
 # Fetch dependencies:
 # - go < 1.11:  go get -t -v ./...
 # - go >= 1.11: go list -test
-- "case \"$(go version)\" in (*' go1.'[0-9]*|*' go1.10.'*) go get -t -v ./... ;; (*) go list -test ;; esac"
+- "case \"$(go version)\" in (*' go1.'[02-9]*|*' go1.10.'*) go get -t -v ./... ;; (*) go list -test ;; esac"
 
 script:
 - go test -coverprofile=coverage.txt -covermode=atomic
