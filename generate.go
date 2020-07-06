@@ -94,8 +94,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	var knownArchs []string
-	archsByEndian := make(map[bool][]string)
+	knownArchs := []string{"amd64p32"}
+	archsByEndian := map[bool][]string{
+		false: { // little
+			knownArchs[0],
+		},
+	}
 
 	for _, f := range files {
 		if !strings.HasPrefix(f, "arch_") || !strings.HasSuffix(f, ".go") {
