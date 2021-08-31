@@ -1,8 +1,9 @@
 // To run this program: go generate
 //
-// (the go:generate line is in doc.go)
+// (the go:generate line is in gen.go/gen_go1.17.go)
 //
-// +build generate
+//go:build generate && !go1.17
+// +build generate,!go1.17
 
 package main
 
