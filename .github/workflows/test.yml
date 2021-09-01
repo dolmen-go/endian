@@ -42,22 +42,22 @@ jobs:
         uses: actions/checkout@v2
         with:
           path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
-      - name: Go cache
-        uses: actions/cache@v2
-          with:
-            # In order:
-            # * Module download cache
-            # * Build cache (Linux)
-            # * Build cache (Mac)
-            # * Build cache (Windows)
-            path: |
-              ~/go/pkg/mod
-              ~/.cache/go-build
-              ~/Library/Caches/go-build
-              %LocalAppData%\go-build
-            key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-            restore-keys: |
-              ${{ runner.os }}-go-
+      #- name: Go cache
+      #  uses: actions/cache@v2
+      #    with:
+      #      # In order:
+      #      # * Module download cache
+      #      # * Build cache (Linux)
+      #      # * Build cache (Mac)
+      #      # * Build cache (Windows)
+      #      path: |
+      #        ~/go/pkg/mod
+      #        ~/.cache/go-build
+      #        ~/Library/Caches/go-build
+      #        %LocalAppData%\go-build
+      #      key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+      #      restore-keys: |
+      #        ${{ runner.os }}-go-
       - name: Check Import path
         run: GO111MODULE=off go list # Verify that go_import_path is ok for go < 1.11
       - name: Install dependencies
