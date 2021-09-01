@@ -1,0 +1,74 @@
+---
+name: Test
+on: [ push, pull_request ]
+jobs:
+  test:
+    strategy:
+      matrix:
+        go-version:
+          - 1.17.x
+          # - tip
+          - 1.16.x
+          - 1.15.x
+          - 1.14.x
+          - 1.13.x
+          - 1.12.x
+          - 1.11.x
+          - 1.10.x
+          - 1.9.x
+          - 1.8.x
+        os:
+          - ubuntu-latest
+          - macos-latest
+        #arch:
+        #  - amd64
+        #  - ppc64le
+        #  - s390x
+        #  - arm64
+    runs-on: ${{ matrix.os }}
+    env:
+      GOPATH: ${{ github.workspace }}
+      GO111MODULE: on
+    defaults:
+      run:
+        working-directory: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+    steps:
+      # https://github.com/mvdan/github-actions-golang
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.GOPATH }}/src/github.com/${{ github.repository }}
+      - name: Go cache
+        # https://github.com/mvdan/github-actions-golang#how-do-i-set-up-caching-between-builds
+        uses: actions/cache@v2
+        with:
+          # In order:
+          # * Module download cache
+          # * Build cache (Linux)
+          # * Build cache (Mac)
+          # * Build cache (Windows)
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            ~/Library/Caches/go-build
+            %LocalAppData%\go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Check Import path
+        run: GO111MODULE=off go list # Verify that go_import_path is ok for go < 1.11
+      - name: Install dependencies
+        shell: bash
+        # Fetch dependencies:
+        # - go < 1.11:  go get -t -v ./...
+        # - go >= 1.11: go list -test -mod=readonly
+        run: "case \"$(go version)\" in (*' go1.'[02-9]*|*' go1.10.'*) go get -t -v ./... ;; (*) go list -test -mod=readonly ;; esac"
+      - name: Test
+        run: go test -coverprofile=coverage.txt -covermode=atomic
+      - name: Send coverage to Codecov.io
+        shell: bash
+        run: bash <(curl -s https://codecov.io/bash)
