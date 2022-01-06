@@ -4,7 +4,9 @@
 [![Travis-CI](https://api.travis-ci.org/dolmen-go/endian.svg?branch=master)](https://travis-ci.org/dolmen-go/endian)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dolmen-go/endian)](https://goreportcard.com/report/github.com/dolmen-go/endian)
 
-## You should not use this package!
+## WARNING!
+
+You should probably mot use this package!
 
 Read this article by Rob Pike before using this package:
 
@@ -19,7 +21,7 @@ data itself.
 And if you ask yourself why I created this package if no one should use it,
 this is because I wanted to play with build tags and `go:generate`.
 
-## So you're not listening...
+## Usage
 
 This package only exports a single variable containing the byte order of
 GOARCH.
