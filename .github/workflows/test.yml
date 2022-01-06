@@ -64,9 +64,13 @@ jobs:
       - name: Install dependencies
         shell: bash
         # Fetch dependencies:
-        # - go < 1.11:  go get -t -v ./...
-        # - go >= 1.11: go list -test -mod=readonly
-        run: "case \"$(go version)\" in (*' go1.'[02-9]*|*' go1.10.'*) go get -t -v ./... ;; (*) go list -test -mod=readonly ;; esac"
+        # - go < 1.11:
+        #      - go get -v -t ./...
+        #      - go get -v -t -tags generate ./...
+        # - go >= 1.11:
+        #      - go list -mod=readonly -test
+        #      - go list -mod=readonly -tags generate
+        run: "case \"$(go version)\" in (*' go1.'[02-9]*|*' go1.10.'*) go get -t -v ./... && go get -v -tags generate ./... ;; (*) go list -mod=readonly -test && go list -mod=readonly -tags generate ;; esac"
       - name: Test
         run: go test -coverprofile=coverage.txt -covermode=atomic
       - name: Send coverage to Codecov.io
