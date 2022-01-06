@@ -1,3 +1,6 @@
+//go:build amd64 && !generate
+// +build amd64,!generate
+
 package endian_test
 
 import (

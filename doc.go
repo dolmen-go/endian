@@ -1,3 +1,6 @@
+//go:build !generate
+// +build !generate
+
 // Package endian exposes the native byte order of GOARCH.
 //
 // You should not use this package before reading and understanding this
