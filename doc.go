@@ -12,7 +12,7 @@
 //
 // Note: reading godoc on one particular platform may be misleading.
 // Check this:
-//   GOARCH=amd64   godoc github.com/dolmen-go/endian
-//   GOARCH=mips64  godoc github.com/dolmen-go/endian
-//   GOARCH=unknown godoc github.com/dolmen-go/endian
+//   GOARCH=amd64   go doc github.com/dolmen-go/endian
+//   GOARCH=mips64  go doc github.com/dolmen-go/endian
+//   GOARCH=unknown go doc github.com/dolmen-go/endian
 package endian
