@@ -41,7 +41,7 @@ The implementation is ultra lightweight because it relies on build tags.
 
 ## License
 
-Copyright 2016-2017 Olivier Mengué
+Copyright 2016-2022 Olivier Mengué
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
