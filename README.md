@@ -6,7 +6,7 @@
 
 ## WARNING!
 
-You should probably mot use this package!
+You should probably not use this package!
 
 Read this article by Rob Pike before using this package:
 
