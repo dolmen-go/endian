@@ -72,3 +72,9 @@ jobs:
       - name: Send coverage to Codecov.io
         shell: bash
         run: bash <(curl -s https://codecov.io/bash)
+      - name: go vet
+        shell: bash
+        run: go vet
+      - name: go vet, for generators
+        shell: bash
+        run: go vet -tags generate
