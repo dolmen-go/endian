@@ -1,6 +1,6 @@
 # endian.Native - A single constant that you should not use
 
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/dolmen-go/endian)
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/dolmen-go/endian)
 [![Travis-CI](https://api.travis-ci.org/dolmen-go/endian.svg?branch=master)](https://travis-ci.org/dolmen-go/endian)
 [![Go Report Card](https://goreportcard.com/badge/github.com/dolmen-go/endian)](https://goreportcard.com/report/github.com/dolmen-go/endian)
 
@@ -23,10 +23,10 @@ this is because I wanted to play with build tags and `go:generate`.
 
 ## Usage
 
-This package only exports a single variable containing the byte order of
+This package only exports a single variable containing the [byte order](https://pkg.go.dev/encoding/binary#ByteOrder) of
 GOARCH.
 
-See the [encoding/binary](https://golang.org/pkg/encoding/binary) package
+See the [encoding/binary](https://pkg.go.dev/encoding/binary) package
 for how to use it to read/write a binary data stream.
 
 ```go
