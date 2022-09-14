@@ -1,6 +1,6 @@
-//go:build !generate && go1.18
-// +build !generate,go1.18
+//go:build !endiangen && go1.18
+// +build !endiangen,go1.18
 
-//go:generate go run -tags generate generate_go1.18.go
+//go:generate go run -tags endiangen generate_go1.18.go
 
 package endian
