@@ -1,5 +1,5 @@
-//go:build amd64 && !generate
-// +build amd64,!generate
+//go:build arm64 && !generate
+// +build arm64,!generate
 
 package endian_test
 
@@ -19,7 +19,7 @@ func ExampleLittle() {
 	endian.Native.PutUint32(b[:], n)
 	fmt.Printf("0x%x => [% x]\n", n, b)
 	// Output:
-	// GOARCH=amd64: LittleEndian
+	// GOARCH=arm64: LittleEndian
 	// 0xdeadbeef => [ef be ad de]
 }
 
