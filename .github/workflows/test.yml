@@ -67,7 +67,7 @@ jobs:
         #      - go list -mod=readonly -tags generate
         run: "case \"$(go version)\" in (*' go1.'[02-9]*|*' go1.10.'*) go get -t -v ./... && go get -v -tags generate ./... ;; (*) go list -mod=readonly -test && go list -mod=readonly -tags generate ;; esac"
       - name: Test
-        run: go test -coverprofile=coverage.txt -covermode=atomic
+        run: go test -v -covermode=atomic -coverprofile=coverage.out
       - name: Upload coverage to Codecov.io
         # https://github.com/codecov/codecov-action
         # https://docs.codecov.com/docs/quick-start
