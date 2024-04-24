@@ -3,9 +3,9 @@
 [![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://pkg.go.dev/github.com/dolmen-go/endian)
 [![Codecov](https://codecov.io/gh/dolmen-go/endian/graph/badge.svg?token=AUuPGQ01UE)](https://codecov.io/gh/dolmen-go/endian)[![Go Report Card](https://goreportcard.com/badge/github.com/dolmen-go/endian)](https://goreportcard.com/report/github.com/dolmen-go/endian)
 
-## WARNING!
+## WARNING 1
 
-You should probably not use this package!
+You should probably not use this package, because you should avoid using the native byte ordering in programs!
 
 Read this article by Rob Pike before using this package:
 
@@ -17,8 +17,12 @@ always generates code using a fixed byte order.
 If you can't, see if you can detect the byte order of the data from the
 data itself.
 
-And if you ask yourself why I created this package if no one should use it,
-this is because I wanted to play with build tags and `go:generate`.
+
+## WARNING 2
+
+Go 1.21 has added [NativeEndian](https://pkg.go.dev/encoding/binary#NativeEndian) (see proposal [#57237](https://go.dev/issue/57237)) which serves the same purpose. However that implementation has a bug: you can't use `==` to compare `binary.NativeEndian` with either `binary.BigEndian` or `binary.LittleEndian`. See [#67026](https://go.dev/issue/67026) and the proposed fix in [CL 581655](https://go-review.googlesource.com/c/go/+/581655).
+
+This package doesn't have this bug, and is compatible even with very old versions of Go.
 
 ## Usage
 
