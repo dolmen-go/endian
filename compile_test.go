@@ -17,3 +17,19 @@ var compileTest binary.ByteOrder = endian.Native
 func TestCompile(t *testing.T) {
 	_ = compileTest
 }
+
+func TestEqual(t *testing.T) {
+	nbOK := 0
+	for _, bo := range []binary.ByteOrder{
+		binary.BigEndian,
+		binary.LittleEndian,
+	} {
+		t.Logf("Native == %v: %v", bo, endian.Native == bo)
+		if endian.Native == bo {
+			nbOK++
+		}
+	}
+	if nbOK != 1 {
+		t.Error("1 equal expected, got", nbOK)
+	}
+}
