@@ -68,9 +68,14 @@ jobs:
         run: "case \"$(go version)\" in (*' go1.'[02-9]*|*' go1.10.'*) go get -t -v ./... && go get -v -tags generate ./... ;; (*) go list -mod=readonly -test && go list -mod=readonly -tags generate ;; esac"
       - name: Test
         run: go test -coverprofile=coverage.txt -covermode=atomic
-      - name: Send coverage to Codecov.io
-        shell: bash
-        run: bash <(curl -s https://codecov.io/bash)
+      - name: Upload coverage to Codecov.io
+        # https://github.com/codecov/codecov-action
+        # https://docs.codecov.com/docs/quick-start
+        uses: codecov/codecov-action@v4
+        with:
+          # https://app.codecov.io/gh/dolmen-go/endian/settings
+          # https://github.com/dolmen-go/endian/settings/secrets/actions
+          token: ${{ secrets.CODECOV_TOKEN }}
       - name: go vet
         shell: bash
         run: go vet
