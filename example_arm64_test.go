@@ -11,7 +11,7 @@ import (
 	"github.com/dolmen-go/endian"
 )
 
-func ExampleLittle() {
+func Example_little() {
 	fmt.Printf("GOARCH=%s: %s\n", runtime.GOARCH, endian.Native)
 
 	const n = 0xDeadBeef
@@ -23,7 +23,7 @@ func ExampleLittle() {
 	// 0xdeadbeef => [ef be ad de]
 }
 
-func ExampleLittleEqual() {
+func Example_littleEqual() {
 	for _, bo := range []binary.ByteOrder{
 		binary.BigEndian,
 		binary.LittleEndian,
