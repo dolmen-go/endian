@@ -20,9 +20,10 @@ data itself.
 
 ## WARNING 2
 
-Go 1.21 has added [NativeEndian](https://pkg.go.dev/encoding/binary#NativeEndian) (see proposal [#57237](https://go.dev/issue/57237)) which serves the same purpose. However that implementation has a bug: you can't use `==` to compare `binary.NativeEndian` with either `binary.BigEndian` or `binary.LittleEndian`. See [#67026](https://go.dev/issue/67026) and the proposed fix in [CL 581655](https://go.dev/cl/581655).
+Go 1.21 has added [NativeEndian](https://pkg.go.dev/encoding/binary#NativeEndian)
+(see proposal [#57237](https://go.dev/issue/57237)) which serves the same purpose.
 
-This package doesn't have this bug, and is compatible even with very old versions of Go.
+This package is compatible even with very old versions of Go.
 
 ## Usage
 
