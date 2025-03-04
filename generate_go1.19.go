@@ -2,12 +2,13 @@
 //
 // (the go:generate line is in gen_go1.19.go)
 //
-//go:build endiangen && go1.19 && !go1.24
-// +build endiangen,go1.19,!go1.24
+//go:build endiangen && go1.19
+// +build endiangen,go1.19
 
 package main
 
 import (
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -21,8 +22,30 @@ import (
 	"github.com/dolmen-go/codegen"
 )
 
+var archSources = []struct {
+	filename  string
+	goarchVar string
+}{
+	// Since Go 1.24: https://go.dev/cl/601357
+	{filename: "internal/syslist/syslist.go", goarchVar: "KnownArch"},
+	// Go 1.19 - 1.23
+	{filename: "go/build/syslist.go", goarchVar: "knownArch"},
+}
+
 func readArchList() ([]string, error) {
-	filename := runtime.GOROOT() + "/src/go/build/syslist.go"
+	var filename, goarchVar string
+
+	for i := range archSources {
+		filename = runtime.GOROOT() + "/src/" + archSources[i].filename
+		_, err := os.Stat(filename)
+		if !errors.Is(err, os.ErrNotExist) {
+			goarchVar = archSources[i].goarchVar
+			break
+		}
+	}
+	if goarchVar == "" {
+		return nil, errors.New("can't find source for lists of GOARCH values")
+	}
 
 	// This code is copied from go 1.19 $GOROOT/src/internal/goarch/gengoarch.go
 
@@ -31,10 +54,7 @@ func readArchList() ([]string, error) {
 		return nil, err
 	}
 	var goarches []string
-	const (
-		goarchVar    = `knownArch`
-		goarchPrefix = `var ` + goarchVar + ` = map[string]bool{`
-	)
+	var goarchPrefix = `var ` + goarchVar + ` = map[string]bool{`
 	inGOARCH := false
 	for _, line := range strings.Split(string(data), "\n") {
 		if strings.HasPrefix(line, goarchPrefix) {
