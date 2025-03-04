@@ -15,15 +15,25 @@ import (
 // Native is the byte order of GOARCH.
 // It will be determined at runtime because it was unknown at code
 // generation time.
-var Native binary.ByteOrder
+var Native nativeEndian
+
+type nativeEndian struct {
+	byteOrder // private embedding
+}
+
+type byteOrder = binary.ByteOrder
+
+func (nativeEndian) String() string { return "NativeEndian" }
+
+func (nativeEndian) GoString() string { return "endian.Native" }
 
 func init() {
 	// http://grokbase.com/t/gg/golang-nuts/129jhmdb3d/go-nuts-how-to-tell-endian-ness-of-machine#20120918nttlyywfpl7ughnsys6pm4pgpe
 	var x int32 = 0x01020304
 	switch *(*byte)(unsafe.Pointer(&x)) {
 	case 1:
-		Native = binary.BigEndian
+		Native = nativeEndian{binary.BigEndian}
 	case 4:
-		Native = binary.LittleEndian
+		Native = nativeEndian{binary.LittleEndian}
 	}
 }
