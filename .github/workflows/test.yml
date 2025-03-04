@@ -92,6 +92,8 @@ jobs:
           # https://app.codecov.io/gh/dolmen-go/endian/settings
           # https://github.com/dolmen-go/endian/settings/secrets/actions
           token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Test -tags endian_nostatic
+        run: go test -v -tags endian_nostatic
       - name: go vet
         shell: bash
         run: go vet
