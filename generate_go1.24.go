@@ -1,9 +1,9 @@
 // To run this program: go generate
 //
-// (the go:generate line is in gen_go1.19.go)
+// (the go:generate line is in gen_go1.24.go)
 //
-//go:build endiangen && go1.19 && !go1.24
-// +build endiangen,go1.19,!go1.24
+//go:build endiangen && go1.24
+// +build endiangen,go1.24
 
 package main
 
@@ -22,7 +22,7 @@ import (
 )
 
 func readArchList() ([]string, error) {
-	filename := runtime.GOROOT() + "/src/go/build/syslist.go"
+	filename := runtime.GOROOT() + "/src/internal/syslist/syslist.go"
 
 	// This code is copied from go 1.19 $GOROOT/src/internal/goarch/gengoarch.go
 
@@ -32,7 +32,7 @@ func readArchList() ([]string, error) {
 	}
 	var goarches []string
 	const (
-		goarchVar    = `knownArch`
+		goarchVar    = `KnownArch`
 		goarchPrefix = `var ` + goarchVar + ` = map[string]bool{`
 	)
 	inGOARCH := false
