@@ -27,11 +27,22 @@ jobs:
         exclude:
           # Old Go releases fail on recent MacOS.
           - os: macos-latest
+            go-version: 1.15.x
+          - os: macos-latest
+            go-version: 1.14.x
+          - os: macos-latest
+            go-version: 1.13.x
+          - os: macos-latest
+            go-version: 1.12.x
+          - os: macos-latest
+            go-version: 1.11.x
+          - os: macos-latest
             go-version: 1.10.x
           - os: macos-latest
             go-version: 1.9.x
           - os: macos-latest
             go-version: 1.8.x
+          # Go 1.15 drops support for darwin/386
         #arch:
         #  - amd64
         #  - ppc64le
