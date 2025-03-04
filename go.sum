@@ -1,2 +1,4 @@
 github.com/dolmen-go/codegen v1.0.0 h1:B/U0E1Cf5KekYF7Cx+M+CVi+Kk5juyGetb5QcXWZSgw=
 github.com/dolmen-go/codegen v1.0.0/go.mod h1:hw2TU7hTAA0vaJ1Cow+oSW9ClG+4uBGn6zPXIXsYW5c=
+github.com/dolmen-go/codegen v1.0.3 h1:6Rf9BJ2/7BS1c14dlgjid6cgIqT7rv2Cq6yNDmGHRAs=
+github.com/dolmen-go/codegen v1.0.3/go.mod h1:CizO325GSq98j3+f6husBwOjkt8zD2WxBEDmk7SuiA8=
