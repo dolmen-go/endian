@@ -1,13 +1,14 @@
 // To run this program: go generate
 //
-// (the go:generate line is in gen.go)
+// (the go:generate line is in gen_go1.19.go)
 //
-//go:build endiangen && !go1.17
-// +build endiangen,!go1.17
+//go:build endiangen && go1.19
+// +build endiangen,go1.19
 
 package main
 
 import (
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -16,113 +17,183 @@ import (
 	"os"
 	"runtime"
 	"sort"
-	"strconv"
 	"strings"
 
 	"github.com/dolmen-go/codegen"
 )
 
-// parseArch extracts the "BigEndian" const from an arch definition source
-// $GOROOT/src/runtime/internal/sys
-func parseArch(filename string) (bool, error) {
+var archSources = []struct {
+	filename  string
+	goarchVar string
+}{
+	// Since Go 1.24: https://go.dev/cl/601357
+	{filename: "internal/syslist/syslist.go", goarchVar: "KnownArch"},
+	// Go 1.19 - 1.23
+	{filename: "go/build/syslist.go", goarchVar: "knownArch"},
+}
+
+func readArchList() ([]string, error) {
+	var filename, goarchVar string
+
+	for i := range archSources {
+		filename = runtime.GOROOT() + "/src/" + archSources[i].filename
+		_, err := os.Stat(filename)
+		if !errors.Is(err, os.ErrNotExist) {
+			goarchVar = archSources[i].goarchVar
+			break
+		}
+	}
+	if goarchVar == "" {
+		return nil, errors.New("can't find source for lists of GOARCH values")
+	}
+
+	// This code is copied from go 1.19 $GOROOT/src/internal/goarch/gengoarch.go
+
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+	var goarches []string
+	var goarchPrefix = `var ` + goarchVar + ` = map[string]bool{`
+	inGOARCH := false
+	for _, line := range strings.Split(string(data), "\n") {
+		if strings.HasPrefix(line, goarchPrefix) {
+			inGOARCH = true
+		} else if inGOARCH && strings.HasPrefix(line, "}") {
+			break
+		} else if inGOARCH {
+			goarch := strings.Fields(line)[0]
+			goarch = strings.TrimPrefix(goarch, `"`)
+			goarch = strings.TrimSuffix(goarch, `":`)
+			goarches = append(goarches, goarch)
+		}
+	}
+
+	if len(goarches) == 0 {
+		return nil, fmt.Errorf("%s: no "+goarchVar+" found", filename)
+	}
+	return goarches, nil
+}
+
+// getBigEndian extracts the list of "BigEndian" GOARCH values from $GOROOT/src/internal/goarch/goarch.go
+func getBigEndian() ([]string, error) {
+	filename := runtime.GOROOT() + "/src/internal/goarch/goarch.go"
 	fs := token.NewFileSet()
 	fileAST, err := parser.ParseFile(fs, filename, nil, parser.Mode(0))
 	//fileAST, err := parser.ParseFile(fs, filename, nil, parser.Trace)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
+	/*
+
+		// BigEndian reports whether the architecture is big-endian.
+		const BigEndian = IsArmbe|IsArm64be|IsMips|IsMips64|IsPpc|IsPpc64|IsS390|IsS390x|IsSparc|IsSparc64 == 1
+
+	*/
+
 	if len(fileAST.Decls) == 0 {
-		return false, fmt.Errorf("%s: no Decls in AST", filename)
+		return nil, fmt.Errorf("%s: no Decls in AST", filename)
 	}
-	decl, ok := fileAST.Decls[0].(*ast.GenDecl)
-	if !ok || decl.Tok != token.CONST {
-		return false, fmt.Errorf("%s: CONST expected at Decls[0]", filename)
-	}
-	for _, rawSpec := range decl.Specs {
-		spec := rawSpec.(*ast.ValueSpec)
+	// fmt.Printf("%#v\n", fileAST.Decls)
+	for _, decl := range fileAST.Decls {
+		decl, ok := decl.(*ast.GenDecl)
+		if !ok {
+			continue
+		}
+		if decl.Tok != token.CONST {
+			continue
+		}
+		spec := decl.Specs[0].(*ast.ValueSpec)
 		if len(spec.Names) != 1 || spec.Names[0].Name != "BigEndian" {
 			continue
 		}
-
 		// We found the const "BigEndian"
 		// Let's extract its value!
 		if len(spec.Values) != 1 {
-			return false, fmt.Errorf("%s: single value expected for const BigEndian", filename)
+			return nil, fmt.Errorf("%s: single value expected for const BigEndian", filename)
 		}
-		switch valueExpr := spec.Values[0].(type) {
-		// !go1.10
-		case *ast.BasicLit:
-			if valueExpr.Kind != token.INT {
-				return false, fmt.Errorf("%s: INT value expected for const BigEndian; got %s", filename, valueExpr.Kind)
-			}
 
-			intValue, _ := strconv.ParseInt(valueExpr.Value, 0, 64)
-			if intValue < 0 || intValue > 1 {
-				return false, fmt.Errorf("%s: value 0/1 expected for const BigEndian", filename)
+		var archs []string
+
+		list := spec.Values[0].(*ast.BinaryExpr).X.(*ast.BinaryExpr)
+		for {
+			arch := strings.ToLower(strings.TrimPrefix(list.Y.(*ast.Ident).Name, "Is"))
+			archs = append(archs, arch)
+
+			var ok bool
+			list2, ok := list.X.(*ast.BinaryExpr)
+			if !ok {
+				arch = strings.ToLower(strings.TrimPrefix(list.X.(*ast.Ident).Name, "Is"))
+				archs = append(archs, arch)
+				break
 			}
-			return intValue == 1, nil
-		// go1.10 https://go-review.googlesource.com/c/go/+/73270
-		case *ast.Ident:
-			switch valueExpr.Name {
-			case "true":
-				return true, nil
-			case "false":
-				return false, nil
-			}
-			return false, fmt.Errorf("%s: BOOL value expected for const BigEndian; got %q", filename, valueExpr.Name)
-		default:
-			return false, fmt.Errorf("%s: unexpected value type for const BigEndian; got %T", filename, spec.Values[0])
+			list = list2
 		}
+
+		// Reverse
+		for i, j := 0, len(archs)-1; i < j; i, j = i+1, j-1 {
+			archs[i], archs[j] = archs[j], archs[i]
+		}
+
+		return archs, nil
 	}
 
-	return true, fmt.Errorf("%s: const BigEndian not found", filename)
+	return nil, fmt.Errorf("%s: const BigEndian not found", filename)
 }
 
 func main() {
 	log.SetPrefix("")
 	log.SetFlags(0)
 
-	var srcDir = runtime.GOROOT() + "/src/runtime/internal/sys"
-	dir, err := os.Open(srcDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer dir.Close()
-
-	files, err := dir.Readdirnames(0)
+	knownArchs, err := readArchList()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	knownArchs := []string{"amd64p32"}
-	archsByEndian := map[bool][]string{
-		false: { // little
-			knownArchs[0],
-		},
+	bigEndianArchs, err := getBigEndian()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	for _, f := range files {
-		if !strings.HasPrefix(f, "arch_") || !strings.HasSuffix(f, ".go") {
-			continue
+	fmt.Println("knownArchs:", knownArchs)
+	fmt.Println("bigEndianArchs:", bigEndianArchs)
+
+	// Verify consistency
+	for _, be := range bigEndianArchs {
+		found := false
+		for _, arch := range knownArchs {
+			if be == arch {
+				found = true
+				break
+			}
 		}
-		arch := f[5 : len(f)-3]
-		//fmt.Println(arch)
-		big, err := parseArch(srcDir + "/" + f)
-		if err != nil {
-			log.Println(err)
-			continue
+		if !found {
+			log.Fatalf("Goarch %s not found", be)
 		}
-		archsByEndian[big] = append(archsByEndian[big], arch)
-		knownArchs = append(knownArchs, arch)
 	}
 
-	//fmt.Printf("%#v\n", archByEndian)
+	archsByEndian := map[bool][]string{}
 
-	const template = `// Code generated by generate.go; DO NOT EDIT.
+	for _, arch := range knownArchs {
+		isBE := false
+		for _, be := range bigEndianArchs {
+			if be == arch {
+				isBE = true
+				break
+			}
+		}
+		archsByEndian[isBE] = append(archsByEndian[isBE], arch)
+	}
 
+	// fmt.Printf("%#v\n", archsByEndian)
+
+	const template = `// Code generated by generate_go1.19.go; DO NOT EDIT.
+
+{{/**/}}//go:build ({{range $i, $tag := .Tags}}{{if gt $i 0}} || {{end}}{{$tag}}{{end}}) && !generate && !endian_nostatic
 {{/**/}}// +build {{- range .Tags}} {{.}}{{end}}
 {{/**/}}// +build !generate
+{{/**/}}// +build !endian_nostatic
 
 package endian
 
@@ -147,9 +218,14 @@ var Native = binary.{{if .Big}}Big{{else}}Little{{end}}Endian
 		)
 	}
 
-	const templateOthers = `// Code generated by generate.go; DO NOT EDIT.
+	const templateOthers = `// Code generated by generate_go1.19.go; DO NOT EDIT.
 
-{{/**/}}// +build !generate,{{range .}}!{{.}},{{end}}!generate
+{{define "go1.19"}}{{if ne . "1.19"}}!{{end}}go1.19{{end -}}
+
+{{/**/}}//go:build !generate && {{template "go1.19" .Go}} && ( endian_nostatic || ({{range $i, $tag := .Tags}}{{ if gt $i 0 }} && {{end}}!{{ $tag }}{{end}}))
+{{/**/}}// +build !generate
+{{/**/}}// +build {{template "go1.19" .Go}}
+{{/**/}}// +build endian_nostatic {{range $i, $tag := .Tags}}{{if gt $i 0 }},{{end}}!{{ $tag }}{{end}}
 
 package endian
 
@@ -161,7 +237,10 @@ import (
 // Native is the byte order of GOARCH.
 // It will be determined at runtime because it was unknown at code
 // generation time.
-var Native binary.ByteOrder
+var Native {{if eq .Go "1.19"}}interface {
+	binary.ByteOrder
+	binary.AppendByteOrder
+}{{else}}binary.ByteOrder{{end}}
 
 func init() {
 	// http://grokbase.com/t/gg/golang-nuts/129jhmdb3d/go-nuts-how-to-tell-endian-ness-of-machine#20120918nttlyywfpl7ughnsys6pm4pgpe
@@ -177,7 +256,16 @@ func init() {
 
 	sort.Strings(knownArchs)
 
-	if err = codegen.MustParse(templateOthers).CreateFile("others.go", knownArchs); err != nil {
-		log.Fatal(err)
+	for _, f := range []*struct {
+		file string
+		data interface{}
+	}{
+		{"others.go", map[string]any{"Tags": knownArchs, "Go": ""}},
+		{"others_go1.19.go", map[string]any{"Tags": knownArchs, "Go": "1.19"}},
+	} {
+		if err = codegen.MustParse(templateOthers).CreateFile(f.file, f.data); err != nil {
+			log.Fatalf("%s: %v", f.file, err)
+		}
 	}
+
 }
