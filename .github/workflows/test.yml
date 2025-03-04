@@ -65,6 +65,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go-version }}
+          # https://github.com/actions/setup-go?tab=readme-ov-file#caching-dependency-files-and-build-outputs
+          cache-dependency-path: |
+            ${{ env.GOPATH }}/src/github.com/${{ github.repository }}/go.sum
       - name: Check Import path
         run: GO111MODULE=off go list # Verify that go_import_path is ok for go < 1.11
       - name: Install dependencies
